@@ -1,0 +1,33 @@
+[Unit]
+Description=Spring Boot Monitor
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=spring-monitor
+Group=spring-monitor
+WorkingDirectory=/opt/spring-monitor
+Environment=JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=70.0
+Environment=SPRING_CONFIG_ADDITIONAL_LOCATION=optional:file:/etc/spring-monitor/
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/usr/bin/env java -jar /opt/spring-monitor/spring-monitor.jar
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=60s
+TimeoutStopSec=25s
+SuccessExitStatus=143
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

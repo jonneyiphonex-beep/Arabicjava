@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /spring-monitor
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: "07:00"
+      timezone: UTC
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: build
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: "07:00"
+      timezone: UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci

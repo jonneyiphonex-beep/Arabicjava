@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17231f">
+  <title>مراقب Spring Boot</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview" aria-label="الرئيسية">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>نبض</strong><small>SPRING MONITOR</small></span>
+      </a>
+      <div class="side-status"><span class="status-dot"></span><span>مراقبة مباشرة</span></div>
+      <nav class="side-nav" aria-label="التنقل">
+        <a class="nav-link active" href="#overview"><span class="nav-index">01</span>نظرة عامة</a>
+        <a class="nav-link" href="#requests"><span class="nav-index">02</span>سجل الطلبات</a>
+        <a class="nav-link" href="#errors"><span class="nav-index">03</span>الأخطاء</a>
+        <a class="nav-link" href="#ide-issues"><span class="nav-index">04</span>مشاكل IDE</a>
+        <a class="nav-link" href="#discovery"><span class="nav-index">05</span>اكتشاف المشاريع</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="sidebar-label">نقطة القياس</span>
+        <code>/api/*</code>
+        <span class="sidebar-note">زمن المعالجة داخل التطبيق</span>
+      </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">لوحة أداء التطبيق <span>·</span> Spring Boot</p>
+          <h1>مركز المراقبة</h1>
+        </div>
+        <div class="topbar-tools">
+          <button class="notification-button" id="notification-toggle" type="button">تفعيل إشعارات الأخطاء</button>
+          <div class="connection-state" id="connection-state" data-state="loading">
+            <span class="status-dot"></span><span id="connection-label">جارٍ الاتصال</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="metric-grid" aria-label="المؤشرات الرئيسية">
+        <article class="metric-card metric-card-primary">
+          <div class="metric-heading"><span>إجمالي الطلبات</span><span class="metric-symbol">↗</span></div>
+          <strong class="metric-value" id="total-requests">—</strong>
+          <span class="metric-foot">منذ تشغيل التطبيق</span>
+        </article>
+        <article class="metric-card">
+          <div class="metric-heading"><span>متوسط الزمن</span><span class="metric-symbol">◷</span></div>
+          <strong class="metric-value" id="average-time">—</strong>
+          <span class="metric-foot">نانوثانية · آخر <b id="sample-size">0</b> طلب</span>
+        </article>
+        <article class="metric-card metric-card-warm">
+          <div class="metric-heading"><span>الأخطاء</span><span class="metric-symbol">!</span></div>
+          <strong class="metric-value" id="total-errors">—</strong>
+          <span class="metric-foot"><b id="error-rate">0%</b> من إجمالي الطلبات</span>
+        </article>
+        <article class="metric-card">
+          <div class="metric-heading"><span>أعلى زمن</span><span class="metric-symbol">⌁</span></div>
+          <strong class="metric-value" id="max-time">—</strong>
+          <span class="metric-foot">نانوثانية · آخر 500 طلب</span>
+        </article>
+      </section>
+
+      <section class="resources-section" id="resources">
+        <div class="resource-section-heading">
+          <div><p class="eyebrow">مؤشرات النظام</p><h2>حالة الجهاز والاتصال</h2></div>
+          <span>تحديث تلقائي كل ٢٫٥ ثانية</span>
+        </div>
+        <div class="hardware-grid">
+          <article class="hardware-card">
+            <div class="hardware-card-heading"><span class="hardware-icon cpu-icon">CPU</span><div><h3>المعالج</h3><span id="cpu-detail">—</span></div></div>
+            <div class="resource-value" id="cpu-value">—</div>
+            <div class="resource-track"><span id="cpu-bar"></span></div>
+            <p class="resource-caption">استخدام المعالج الكلي</p>
+          </article>
+          <article class="hardware-card">
+            <div class="hardware-card-heading"><span class="hardware-icon ram-icon">RAM</span><div><h3>الذاكرة</h3><span id="ram-detail">—</span></div></div>
+            <div class="resource-value" id="ram-value">—</div>
+            <div class="resource-track"><span id="ram-bar"></span></div>
+            <p class="resource-caption">الذاكرة المستخدمة / المتاحة</p>
+          </article>
+          <article class="hardware-card">
+            <div class="hardware-card-heading"><span class="hardware-icon disk-icon">SSD</span><div><h3>التخزين</h3><span id="disk-detail">—</span></div></div>
+            <div class="resource-value" id="disk-value">—</div>
+            <div class="resource-track"><span id="disk-bar"></span></div>
+            <div class="io-rates"><span>قراءة <b id="disk-read">—</b></span><span>كتابة <b id="disk-write">—</b></span></div>
+          </article>
+          <article class="hardware-card network-card">
+            <div class="hardware-card-heading"><span class="hardware-icon net-icon">NET</span><div><h3>الاتصال</h3><span id="network-type">نوع الشبكة غير متاح</span></div></div>
+            <div class="network-measures">
+              <div><strong id="network-rtt">—</strong><span>ms إلى التطبيق</span></div>
+              <div><strong id="network-downlink">—</strong><span>تنزيل مقدّر</span></div>
+            </div>
+            <p class="resource-caption">السرعة تقدير المتصفح، وRTT يقيس الرحلة ذهابًا وإيابًا للخادم.</p>
+          </article>
+          <article class="hardware-card board-card">
+            <div class="hardware-card-heading"><span class="hardware-icon board-icon">MB</span><div><h3>اللوحة الأم</h3><span>بيانات SMBIOS / DMI</span></div></div>
+            <strong class="board-value" id="board-name">جارٍ القراءة…</strong>
+            <p class="resource-caption">قد يظهر اسم الجهاز الافتراضي بدل الطراز الفعلي.</p>
+          </article>
+          <article class="hardware-card thermal-card">
+            <div class="hardware-card-heading"><span class="hardware-icon thermal-icon">°C</span><div><h3>الحرارة والتبريد</h3><span id="cooling-state">جارٍ فحص الحساسات…</span></div></div>
+            <div class="thermal-summary"><span>أعلى حرارة</span><strong id="max-temperature">—</strong></div>
+            <div class="sensor-groups">
+              <div><h4>الحرارة</h4><div class="sensor-list" id="temperature-sensors"></div></div>
+              <div><h4>المراوح</h4><div class="sensor-list" id="fan-sensors"></div></div>
+              <div><h4>متحكمات التبريد</h4><div class="sensor-list" id="cooling-sensors"></div></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel discovery-panel" id="discovery">
+        <div class="panel-heading discovery-heading">
+          <div><p class="eyebrow">فحص مساحة العمل</p><h2>المشاريع والأدوات المكتشفة</h2><span class="discovery-root" id="discovery-root">جارٍ تحديد المجلد…</span></div>
+          <div class="discovery-actions"><span id="discovery-summary">جارٍ البحث…</span><button class="discovery-refresh" id="discovery-refresh" type="button">إعادة الفحص</button></div>
+        </div>
+        <div class="discovery-grid">
+          <section class="discovery-column"><h3>المشاريع</h3><div class="discovery-list" id="discovered-projects"><p class="empty-errors">جارٍ فحص ملفات مساحة العمل…</p></div></section>
+          <section class="discovery-column"><h3>أدوات التطوير المتاحة</h3><div class="toolchain-list" id="toolchain-list"></div></section>
+        </div>
+      </section>
+
+      <section class="overview-grid">
+        <article class="panel latency-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">زمن الاستجابة</p><h2>إيقاع الطلبات</h2></div>
+            <span class="unit-label">نانوثانية</span>
+          </div>
+          <div class="chart-wrap"><canvas id="latency-chart" aria-label="رسم زمني لمدة الطلبات الأخيرة"></canvas></div>
+          <div class="chart-legend"><span><i class="legend-line"></i>الطلبات الأخيرة</span><span id="chart-count">لا توجد بيانات بعد</span></div>
+        </article>
+
+        <article class="panel test-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">تحقق سريع</p><h2>جرّب التطبيق</h2></div>
+            <span class="pulse-mark" aria-hidden="true"></span>
+          </div>
+          <p class="test-description">أرسل طلبًا حقيقيًا إلى Spring Boot وشاهد زمنه في السجل.</p>
+          <button class="action-button action-primary" id="ping-button" type="button"><span aria-hidden="true">↗</span>قياس طلب سريع</button>
+          <button class="action-button action-secondary" id="work-button" type="button"><span aria-hidden="true">⌁</span>اختبار معالجة CPU</button>
+          <button class="action-button action-error" id="error-button" type="button"><span aria-hidden="true">!</span>تسجيل خطأ تجريبي</button>
+          <p class="test-hint">الخطأ التجريبي لا يغيّر بيانات النظام.</p>
+        </article>
+      </section>
+
+      <section class="panel requests-panel" id="requests">
+        <div class="panel-heading request-heading">
+          <div><p class="eyebrow">التدفق الحي</p><h2>الطلبات الأخيرة</h2></div>
+          <div class="filter-switch" role="group" aria-label="تصفية سجل الطلبات">
+            <button class="filter-button selected" type="button" data-filter="all">الكل</button>
+            <button class="filter-button" type="button" data-filter="errors">الأخطاء</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>المسار</th><th>الطريقة</th><th>الحالة</th><th>زمن المعالجة</th><th>الوقت</th></tr></thead>
+            <tbody id="request-rows"><tr><td class="empty-cell" colspan="5">بانتظار أول طلب…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="error-section" id="errors">
+        <div class="error-heading"><div><p class="eyebrow">تنبيهات</p><h2>آخر الأخطاء</h2></div><span class="error-count" id="error-count">0</span></div>
+        <div class="error-list" id="error-list"><p class="empty-errors">لا توجد أخطاء مسجلة.</p></div>
+      </section>
+
+      <section class="panel ide-issues-panel" id="ide-issues">
+        <div class="panel-heading issue-heading">
+          <div><p class="eyebrow">تشخيصات البناء</p><h2>مشاكل Android Studio وXcode</h2></div>
+          <div class="issue-toolbar">
+            <span class="issue-total" id="ide-issue-count">0</span>
+            <div class="filter-switch" role="group" aria-label="تصفية مشاكل IDE">
+              <button class="ide-filter-button selected" type="button" data-ide-filter="all">الكل</button>
+              <button class="ide-filter-button" type="button" data-ide-filter="android-studio">Android</button>
+              <button class="ide-filter-button" type="button" data-ide-filter="xcode">Xcode</button>
+            </div>
+          </div>
+        </div>
+        <div class="ide-issue-list" id="ide-issue-list"><p class="empty-errors">لا توجد مشاكل مستلمة من مشاريع التطوير.</p></div>
+      </section>
+
+      <footer class="page-footer"><span>القياس باستخدام <code>System.nanoTime()</code></span><span id="uptime">مدة التشغيل: —</span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
