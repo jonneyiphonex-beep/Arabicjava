@@ -11,6 +11,28 @@ cd spring-monitor
 
 ثم افتح <http://localhost:8080>.
 
+## الاستضافة الذاتية باستخدام Docker Compose
+
+يتطلب Docker Engine مع إضافة Compose. انسخ ملف الإعداد، أنشئ كلمة مرور عشوائية بطول 32 بايت على الأقل، وضعها في `MONITOR_AUTH_PASSWORD` داخل `.env`:
+
+```bash
+cp .env.example .env
+openssl rand -hex 32
+mkdir -p spring-monitor/workspace
+```
+
+بعد إدخال كلمة المرور في `.env`، شغّل الخدمة:
+
+```bash
+docker compose up -d --build
+docker compose ps
+docker compose logs -f spring-monitor
+```
+
+افتراضياً يستمع التطبيق على `127.0.0.1:8080`؛ استخدم reverse proxy على الخادم لإنهاء HTTPS، ولا تفتح المنفذ مباشرة على الإنترنت دون TLS وجدار ناري. بيانات `.env` سرية ومستثناة من Git. مجلد مساحة العمل قابل للقراءة فقط داخل الحاوية؛ غيّر `MONITOR_WORKSPACE_PATH` إلى مجلد المشاريع الذي تريد اكتشافه. سجل الطلبات ومشاكل IDE يبقيان في الذاكرة ويُفقدان عند إعادة تشغيل التطبيق.
+
+يمكن تشغيل الخادم عبر اتصال خلوي مثل Huawei E177 إذا كان Linux يتعرف على المودم كواجهة شبكة مستقرة. هذا لا يضمن إمكانية الوصول من الإنترنت: كثير من شرائح الجوال تستخدم CGNAT وتحجب الاتصالات الواردة. تحقق من وجود عنوان IP عام واتصالات واردة لدى المشغل، أو استخدم نفقاً عكسياً إلى خادم عام مع HTTPS.
+
 ## الاستقرار والتشغيل
 
 يعرض Spring Boot فحوص الصحة على `/actuator/health/liveness` و`/actuator/health/readiness`. عند إيقاف طبيعي، ينتظر الخادم حتى 20 ثانية لتصريف الطلبات الجارية. لسياسة إعادة تشغيل عند تعطل العملية أو نشر بلا توقف، شغّل التطبيق تحت systemd أو Kubernetes واستخدم أكثر من نسخة مع موازن حمل.
@@ -33,12 +55,16 @@ cd spring-monitor
 sudo useradd --system --home /opt/spring-monitor --shell /usr/sbin/nologin spring-monitor
 sudo install -d -o spring-monitor -g spring-monitor /opt/spring-monitor
 sudo install -m 0644 target/spring-monitor-0.0.1-SNAPSHOT.jar /opt/spring-monitor/spring-monitor.jar
-sudo install -d /etc/spring-monitor
+sudo install -d -o root -g spring-monitor -m 0750 /etc/spring-monitor
+sudo install -o root -g spring-monitor -m 0640 /dev/null /etc/spring-monitor/application.properties
+sudoedit /etc/spring-monitor/application.properties
 cd ..
 sudo install -m 0644 deploy/spring-monitor.service /etc/systemd/system/spring-monitor.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now spring-monitor
 ```
+
+أضف إلى `/etc/spring-monitor/application.properties` اسم المستخدم وكلمة مرور عشوائية لا تقل عن 24 حرفاً (`monitor.auth.username` و`monitor.auth.password`) قبل بدء الخدمة؛ يحميها مالك root ومجموعة الخدمة.
 
 تحقق من الحالة والصحة باستخدام `systemctl status spring-monitor` و`curl http://localhost:8080/actuator/health/readiness`. تعيد الخدمة التشغيل عند الفشل، وتحدّ إعادة المحاولة بخمس مرات خلال دقيقة لتجنب حلقة انهيار مستمرة. هذه خدمة نسخة واحدة وليست إعداد توافر عالٍ؛ صفر توقف يتطلب عدة نسخ خلف موازن حمل وتخزينًا مشتركًا.
 
